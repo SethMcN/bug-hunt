@@ -8,7 +8,7 @@ const ch = challengeById("c02")!;
 // The feature under test: decide whether an email address is valid.
 export function isValidEmail(input: string): boolean {
   const value = input.trim();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  return /^.+@.+$/.test(value);
 }
 
 function runChecks(): CheckRow[] {
