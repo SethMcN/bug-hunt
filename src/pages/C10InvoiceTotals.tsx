@@ -7,8 +7,7 @@ const ch = challengeById("c10")!;
 // Sum a list of dollar prices to an exact total. Money is summed in integer
 // cents to avoid binary-float rounding drift, then converted back to dollars.
 export function invoiceTotal(prices: number[]): number {
-  const cents = prices.reduce((acc, p) => acc + Math.round(p * 100), 0);
-  return cents / 100;
+  return prices.reduce((acc, p) => acc + p, 0);
 }
 
 function runChecks(): CheckRow[] {
