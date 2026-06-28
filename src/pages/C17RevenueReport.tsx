@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { challengeById } from "../challenges.ts";
 import { AcceptancePanel, type CheckRow } from "../shared/AcceptancePanel.tsx";
 import { PageHeader, Card, Field } from "../shared/ui.tsx";
@@ -54,7 +54,7 @@ export function C17RevenueReport() {
     return () => clearInterval(t);
   }, []);
 
-  const report = useMemo(() => computeReport(products), [products]);
+  const report = computeReport(products);
 
   return (
     <div>
