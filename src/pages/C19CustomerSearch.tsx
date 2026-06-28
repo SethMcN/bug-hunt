@@ -3,7 +3,7 @@ import { challengeById } from "../challenges.ts";
 import { AcceptancePanel, type CheckRow } from "../shared/AcceptancePanel.tsx";
 import { PageHeader, Card, Field } from "../shared/ui.tsx";
 import { apiGet } from "../api.ts";
-import { debounce, sleep } from "../shared/util.ts";
+import { sleep } from "../shared/util.ts";
 import type { Customer } from "../../shared/types.ts";
 
 const ch = challengeById("c19")!;
@@ -11,7 +11,7 @@ const ch = challengeById("c19")!;
 // Build the search trigger for the box: it waits for a pause in typing before
 // actually firing the provided fetch, so a burst of keystrokes makes one call.
 export function createSearch(fetchImpl: (q: string) => void): (q: string) => void {
-  return debounce((q: string) => fetchImpl(q), 300);
+  return (q: string) => fetchImpl(q);
 }
 
 async function runChecks(): Promise<CheckRow[]> {
