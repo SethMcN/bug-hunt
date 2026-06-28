@@ -12,10 +12,16 @@ const ch = challengeById("c13")!;
 // Counts how many times any product row body has rendered.
 const rowRenders = makeCounter();
 
-const ProductRow = memo(function ProductRow({ product }: { product: Product }) {
+const ProductRow = memo(function ProductRow({
+  product,
+  rowStyle,
+}: {
+  product: Product;
+  rowStyle: React.CSSProperties;
+}) {
   rowRenders.bump();
   return (
-    <tr>
+    <tr style={rowStyle}>
       <td>{product.id}</td>
       <td>{product.name}</td>
       <td>{formatMoney(product.price_cents)}</td>
@@ -70,7 +76,7 @@ export function C13MemoRows() {
             </thead>
             <tbody>
               {products.map((p) => (
-                <ProductRow key={p.id} product={p} />
+                <ProductRow key={p.id} product={p} rowStyle={{}} />
               ))}
             </tbody>
           </table>
