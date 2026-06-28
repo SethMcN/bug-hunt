@@ -16,11 +16,9 @@ export interface Summary {
 // Load the three independent summary tiles. They have no data dependency on
 // each other, so they are fetched in parallel — total time ≈ the slowest one.
 export async function loadSummary(): Promise<Summary> {
-  const [revenue, customers, orders] = await Promise.all([
-    apiGet<{ v: number }>("/api/stats/revenue"),
-    apiGet<{ v: number }>("/api/stats/customers"),
-    apiGet<{ v: number }>("/api/stats/orders"),
-  ]);
+  const revenue = await apiGet<{ v: number }>("/api/stats/revenue");
+  const customers = await apiGet<{ v: number }>("/api/stats/customers");
+  const orders = await apiGet<{ v: number }>("/api/stats/orders");
   return { revenue: revenue.v, customers: customers.v, orders: orders.v };
 }
 
