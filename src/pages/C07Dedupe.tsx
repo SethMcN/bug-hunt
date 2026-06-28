@@ -8,7 +8,7 @@ const ch = challengeById("c07")!;
 // Normalize a name so trivial differences (casing, surrounding whitespace)
 // collapse to the same key for duplicate detection.
 export function normalizeKey(name: string): string {
-  return name.trim().toLowerCase();
+  return name;
 }
 
 // Add a name only if no existing entry normalizes to the same key.
