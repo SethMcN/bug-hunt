@@ -8,8 +8,8 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:web": "vite",
     "seed": "tsx server/seed.ts",
-    "build": "tsc -b && vite build",
-    "typecheck": "tsc -b --noEmit && tsc -p server/tsconfig.json --noEmit"
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p server/tsconfig.json"
   },
   "dependencies": {
     "cors": "^2.8.5",
