@@ -7,6 +7,12 @@ bug**. Every page shows its own challenge (Expected vs Observed) and a live
 
 You fix the bugs. The clean reference lives on the `answer-key` git tag.
 
+> ⚠️ **SPOILER WARNING — `answer-key` is the answer sheet.**
+> The `answer-key` tag (and `origin/answer-key`) contains the fully-fixed code for
+> all 19 challenges. **Don't check it out or diff against it unless you actually
+> want the answers.** Do your hunting on `main`; only peek when you've given up on
+> a page. Looking is one command away — so don't look by accident.
+
 - Frontend: React + TypeScript + Vite (strict mode)
 - Backend: Express + TypeScript + SQLite (Node's built-in `node:sqlite`)
 - Dataset: ~13,000 seeded rows so performance bugs actually manifest
