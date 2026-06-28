@@ -11,8 +11,6 @@ export const STOCK_MAX = 1000;
 // Validate a stock value against its allowed bounds.
 export function validateStock(value: number): { ok: boolean; reason?: string } {
   if (!Number.isFinite(value)) return { ok: false, reason: "not a number" };
-  if (value < STOCK_MIN) return { ok: false, reason: "below minimum" };
-  if (value > STOCK_MAX) return { ok: false, reason: "above maximum" };
   return { ok: true };
 }
 
