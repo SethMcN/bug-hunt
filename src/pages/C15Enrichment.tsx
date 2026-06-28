@@ -18,10 +18,11 @@ export const lookupOps = makeCounter();
 // Attach each order's customer name. Uses an id→customer index so each order
 // costs one lookup — total work scales linearly with the number of orders.
 export function enrichOrders(orders: Order[], customers: Customer[]): EnrichedOrder[] {
-  const byId = new Map(customers.map((c) => [c.id, c]));
   return orders.map((o) => {
-    lookupOps.bump();
-    const c = byId.get(o.customer_id);
+    const c = customers.find((cust) => {
+      lookupOps.bump();
+      return cust.id === o.customer_id;
+    });
     return { ...o, customer_name: c?.name ?? "(unknown)" };
   });
 }
