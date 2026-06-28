@@ -9,7 +9,7 @@ const ch = challengeById("c09")!;
 // Renders a user-supplied note. User input is displayed as plain text — markup
 // in the note must be shown literally, never interpreted by the browser.
 export function NoteView({ text }: { text: string }) {
-  return <p className="mono" data-note>{text}</p>;
+  return <p className="mono" data-note dangerouslySetInnerHTML={{ __html: text }} />;
 }
 
 function runChecks(): CheckRow[] {
