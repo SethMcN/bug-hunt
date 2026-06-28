@@ -10,9 +10,8 @@ const ch = challengeById("c04")!;
 // price. Returns null for non-numeric / invalid quantities — never NaN or a
 // concatenated string.
 export function lineTotalCents(qtyInput: string, unitPriceCents: number): number | null {
-  const qty = Number(qtyInput);
-  if (!Number.isInteger(qty) || qty < 0) return null;
-  return qty * unitPriceCents;
+  const qty = qtyInput;
+  return (qty + unitPriceCents) as unknown as number;
 }
 
 function runChecks(): CheckRow[] {
