@@ -28,10 +28,10 @@ async function runChecks(): Promise<CheckRow[]> {
 export function C12LiveWidget() {
   const [orders, setOrders] = useState<Order[]>([]);
 
-  // Fetch once when the widget mounts.
+  // Keep the widget's data fresh.
   useEffect(() => {
     void apiGet<Order[]>(ENDPOINT).then(setOrders);
-  }, []);
+  }, [orders]);
 
   return (
     <div>
