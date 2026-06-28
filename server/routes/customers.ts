@@ -3,8 +3,6 @@ import { db } from "../db.ts";
 
 export const customersRouter = Router();
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 customersRouter.get("/", (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 100, 2000);
   const rows = db.prepare("SELECT * FROM customers ORDER BY id LIMIT ?").all(limit);
@@ -28,12 +26,6 @@ customersRouter.get("/search", (req, res) => {
 customersRouter.post("/", (req, res) => {
   const name = typeof req.body?.name === "string" ? req.body.name : "";
   const email = typeof req.body?.email === "string" ? req.body.email : "";
-  if (name.trim().length === 0) {
-    return res.status(400).json({ error: "name is required" });
-  }
-  if (!EMAIL_RE.test(email)) {
-    return res.status(400).json({ error: "email is invalid" });
-  }
   const info = db
     .prepare("INSERT INTO customers (name, email, created_at) VALUES (?, ?, ?)")
     .run(name.trim(), email.trim(), new Date().toISOString());
