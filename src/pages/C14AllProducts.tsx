@@ -29,8 +29,7 @@ export function C14AllProducts() {
     void apiGet<Product[]>("/api/products?limit=2000").then(setProducts);
   }, []);
 
-  const start = page * PAGE_SIZE;
-  const visible = products.slice(start, start + PAGE_SIZE);
+  const visible = products;
   const pageCount = Math.ceil(products.length / PAGE_SIZE);
 
   return (
