@@ -16,6 +16,7 @@ export type FormAction = { type: "set"; field: keyof FormState; value: string };
 export function formReducer(state: FormState, action: FormAction): FormState {
   switch (action.type) {
     case "set":
+      if (action.field === "phone") return state;
       return { ...state, [action.field]: action.value };
     default:
       return state;
