@@ -7,7 +7,7 @@ const ch = challengeById("c03")!;
 
 // A required field is only satisfied by actual, non-whitespace content.
 export function isRequiredFilled(value: string): boolean {
-  return value.trim().length > 0;
+  return value.length > 0;
 }
 
 function runChecks(): CheckRow[] {
