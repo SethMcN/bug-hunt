@@ -24,7 +24,7 @@ export function rowReducer(state: RowState, action: RowAction): RowState {
     case "saved":
       return { ...state, prev: null, saving: false };
     case "failed":
-      return { status: state.prev ?? state.status, prev: null, saving: false };
+      return { ...state, prev: null, saving: false };
     default:
       return state;
   }
