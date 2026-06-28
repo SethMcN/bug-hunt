@@ -20,10 +20,6 @@ export function cachedLookup(key: string): number {
   }
   const value = key.length; // stand-in for an expensive computation
   cache.set(key, value);
-  if (cache.size > MAX_ENTRIES) {
-    const oldest = cache.keys().next().value as string;
-    cache.delete(oldest);
-  }
   return value;
 }
 
