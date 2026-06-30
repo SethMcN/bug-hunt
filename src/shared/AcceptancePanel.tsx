@@ -30,7 +30,22 @@ export function AcceptancePanel({ challenge, run, live }: AcceptancePanelProps) 
     inFlight.current = true;
     setRunning(true);
     try {
-      const result = await runRef.current();
+      let result: CheckRow[];
+      try {
+        result = await runRef.current();
+      } catch (err) {
+        // Behavior we couldn't exercise can't be judged correct. A check that
+        // throws/rejects (e.g. the API is down) is a FAIL, never a retained
+        // PASS — otherwise the badge would show a stale green not derived from
+        // the page's current behavior.
+        result = [
+          {
+            label: "acceptance check could not run",
+            pass: false,
+            detail: err instanceof Error ? err.message : String(err),
+          },
+        ];
+      }
       setRows(result);
       const solved = result.length > 0 && result.every((r) => r.pass);
       reportAcceptance(challenge.id, solved);
