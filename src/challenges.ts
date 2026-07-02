@@ -1,8 +1,11 @@
-// Single source of truth for the 19 challenges: id, number, page title, group,
+// Single source of truth for the challenges: id, number, page title, group,
 // and the symptom-only brief (expected vs observed) shown on each page. The
 // brief MUST NOT name the cause, fix, file, or line.
 
 export type Group = "Data entry" | "Performance";
+
+// Sidebar/Home group order.
+export const GROUPS: Group[] = ["Data entry", "Performance"];
 
 export interface Challenge {
   id: string; // route segment, e.g. "c01"

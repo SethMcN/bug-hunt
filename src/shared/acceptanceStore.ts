@@ -5,11 +5,25 @@ import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "bughunt.acceptance";
 
-type State = Record<string, boolean>;
+export interface AcceptanceEntry {
+  solved: boolean;
+  at: number; // when this status was first recorded (ms epoch); 0 = unknown
+}
+
+type State = Record<string, AcceptanceEntry>;
 
 function load(): State {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as State;
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") as Record<
+      string,
+      boolean | AcceptanceEntry
+    >;
+    // Migrate the pre-timestamp format (bare booleans) in place.
+    const state: State = {};
+    for (const [id, v] of Object.entries(raw)) {
+      state[id] = typeof v === "boolean" ? { solved: v, at: 0 } : v;
+    }
+    return state;
   } catch {
     return {};
   }
@@ -23,9 +37,16 @@ function emit() {
 }
 
 export function reportAcceptance(id: string, solved: boolean): void {
-  if (state[id] === solved) return;
-  state = { ...state, [id]: solved };
+  if (state[id]?.solved === solved) return;
+  state = { ...state, [id]: { solved, at: Date.now() } };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  emit();
+}
+
+// Clear every recorded badge (used to start a fresh training round).
+export function resetProgress(): void {
+  state = {};
+  localStorage.removeItem(STORAGE_KEY);
   emit();
 }
 
