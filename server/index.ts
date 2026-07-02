@@ -6,6 +6,7 @@ import { customersRouter } from "./routes/customers.ts";
 import { ordersRouter } from "./routes/orders.ts";
 import { productsRouter } from "./routes/products.ts";
 import { statsRouter } from "./routes/stats.ts";
+import { filterRouter } from "./routes/filter.ts";
 import { devRouter } from "./routes/dev.ts";
 
 initSchema();
@@ -42,6 +43,7 @@ app.use("/api/customers", customersRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/filter", filterRouter);
 if (process.env.NODE_ENV !== "production") {
   app.use("/api/dev", devRouter);
 }
