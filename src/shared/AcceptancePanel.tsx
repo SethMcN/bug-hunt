@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { reportAcceptance } from "./acceptanceStore.ts";
+import { getRequestLog } from "../api.ts";
+import { sleep } from "./util.ts";
+import { DEBUG_ENABLED } from "./debug.ts";
 import type { Challenge } from "../challenges.ts";
 
 export interface CheckRow {
@@ -27,17 +30,18 @@ interface AcceptancePanelProps {
 
 type Phase = "idle" | "running" | "done";
 
+interface RunRecord {
+  at: number;
+  ms: number; // how long the check itself took (excluding the min-animation wait)
+  solved: boolean;
+}
+
 // Minimum time the "Checking…" state stays visible on a manual run so every
 // re-check visibly resets before showing the new verdict, even when the check
 // resolves instantly.
 const MIN_ANIM_MS = 350;
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-// Debug affordances are dev-only. They can also be forced on from a harness via
-// a global toggle, so this is clearly a debug tool and never part of a challenge.
-const DEBUG_ENABLED =
-  (import.meta.env?.DEV ?? false) ||
-  !!(globalThis as { __PANEL_DEBUG__?: boolean }).__PANEL_DEBUG__;
+const HISTORY_MAX = 10;
 
 export function AcceptancePanel({ challenge, run, live }: AcceptancePanelProps) {
   // Result state. `phase` gates the derived verdict so a fresh run visibly
@@ -45,7 +49,10 @@ export function AcceptancePanel({ challenge, run, live }: AcceptancePanelProps) 
   // from a previous run except what we choose to display in the debug section.
   const [rows, setRows] = useState<CheckRow[]>([]);
   const [phase, setPhase] = useState<Phase>("idle");
-  const [lastRun, setLastRun] = useState<{ at: number; rows: CheckRow[] } | null>(null);
+  const [lastRun, setLastRun] = useState<{ at: number; ms: number; rows: CheckRow[] } | null>(
+    null
+  );
+  const [history, setHistory] = useState<RunRecord[]>([]);
   const [showDebug, setShowDebug] = useState(false);
 
   // Always call the current run(); on HMR the page passes a new closure and we
@@ -93,19 +100,20 @@ export function AcceptancePanel({ challenge, run, live }: AcceptancePanelProps) 
             },
           ];
         }
+        const durationMs = Date.now() - started;
 
-        if (animate) {
-          const elapsed = Date.now() - started;
-          if (elapsed < MIN_ANIM_MS) await sleep(MIN_ANIM_MS - elapsed);
-        }
+        if (animate && durationMs < MIN_ANIM_MS) await sleep(MIN_ANIM_MS - durationMs);
 
         // Superseded by a newer run (or a reset)? Drop this stale result.
         if (mySeq !== seqRef.current) return;
 
         setRows(result);
         setPhase("done");
-        setLastRun({ at: Date.now(), rows: result });
+        setLastRun({ at: Date.now(), ms: durationMs, rows: result });
         const solved = result.length > 0 && result.every((r) => r.pass);
+        setHistory((h) =>
+          [...h, { at: Date.now(), ms: durationMs, solved }].slice(-HISTORY_MAX)
+        );
         // Same live verdict the panel shows drives the Home/sidebar badges, so
         // they can never disagree with the panel.
         reportAcceptance(challenge.id, solved);
@@ -136,11 +144,11 @@ export function AcceptancePanel({ challenge, run, live }: AcceptancePanelProps) 
     setPhase("idle");
     setRows([]);
     setLastRun(null);
+    setHistory([]);
   }, []);
 
   return (
     <section className="acceptance" data-state={state} aria-live="polite" aria-busy={running}>
-      <style>{PANEL_CSS}</style>
       <header className="acceptance__head">
         <span
           className={`badge ${
@@ -196,6 +204,7 @@ export function AcceptancePanel({ challenge, run, live }: AcceptancePanelProps) 
           rows={rows}
           phase={phase}
           lastRun={lastRun}
+          history={history}
           open={showDebug}
           onToggle={() => setShowDebug((v) => !v)}
           onRerun={() => void doRun({ animate: true })}
@@ -211,11 +220,16 @@ function fmtTime(ts: number): string {
   return `${d.toLocaleTimeString()}.${String(d.getMilliseconds()).padStart(3, "0")}`;
 }
 
+function fmtClock(ts: number): string {
+  return new Date(ts).toLocaleTimeString();
+}
+
 function DebugSection({
   challenge,
   rows,
   phase,
   lastRun,
+  history,
   open,
   onToggle,
   onRerun,
@@ -224,18 +238,24 @@ function DebugSection({
   challenge: Challenge;
   rows: CheckRow[];
   phase: Phase;
-  lastRun: { at: number; rows: CheckRow[] } | null;
+  lastRun: { at: number; ms: number; rows: CheckRow[] } | null;
+  history: RunRecord[];
   open: boolean;
   onToggle: () => void;
   onRerun: () => void;
   onReset: () => void;
 }) {
+  const requests = getRequestLog().slice(-8).reverse();
   return (
     <div className="acceptance__debug">
       <button className="acceptance__debughead" onClick={onToggle} aria-expanded={open}>
         <span className="acceptance__caret">{open ? "▾" : "▸"}</span> Debug ·{" "}
         {challenge.id} · phase: {phase}
-        {lastRun && <span className="acceptance__ts">last run {fmtTime(lastRun.at)}</span>}
+        {lastRun && (
+          <span className="acceptance__ts">
+            last run {fmtTime(lastRun.at)} · {lastRun.ms}ms
+          </span>
+        )}
       </button>
       {open && (
         <div className="acceptance__debugbody">
@@ -286,6 +306,59 @@ function DebugSection({
             </tbody>
           </table>
 
+          {history.length > 0 && (
+            <div className="acceptance__history">
+              <span className="muted">recent runs:</span>
+              {history
+                .slice()
+                .reverse()
+                .map((h, i) => (
+                  <span
+                    key={i}
+                    className={h.solved ? "row--pass" : "row--fail"}
+                    title={`${fmtClock(h.at)} · ${h.ms}ms`}
+                  >
+                    <span className="row__mark">{h.solved ? "✓" : "✗"}</span>
+                    {h.ms}ms
+                  </span>
+                ))}
+            </div>
+          )}
+
+          <div className="acceptance__reqlog">
+            <div className="muted">recent API requests (newest first)</div>
+            {requests.length === 0 ? (
+              <p className="row--muted">(none yet)</p>
+            ) : (
+              <table className="acceptance__cases">
+                <thead>
+                  <tr>
+                    <th>time</th>
+                    <th>method</th>
+                    <th>path</th>
+                    <th>status</th>
+                    <th>ms</th>
+                    <th>queries</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((r, i) => (
+                    <tr key={i}>
+                      <td className="acceptance__actual">{fmtClock(r.at)}</td>
+                      <td>{r.method}</td>
+                      <td className="mono acceptance__reqpath">{r.path}</td>
+                      <td className={r.status !== null && r.status < 400 ? "" : "row--fail"}>
+                        {r.status ?? "ERR"}
+                      </td>
+                      <td className="acceptance__actual">{r.ms}</td>
+                      <td className="acceptance__actual">{r.queryCount ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
           <details className="acceptance__raw">
             <summary>raw measured values</summary>
             <pre>{JSON.stringify(lastRun?.rows ?? rows, null, 2)}</pre>
@@ -295,31 +368,3 @@ function DebugSection({
     </div>
   );
 }
-
-const PANEL_CSS = `
-.acceptance[data-state="running"] { border-left-color: var(--muted); }
-.badge--running { background: rgba(139,148,158,0.15); color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
-.acceptance__spinner {
-  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-  border: 2px solid currentColor; border-top-color: transparent;
-  animation: acceptance-spin 0.6s linear infinite; vertical-align: middle;
-}
-@keyframes acceptance-spin { to { transform: rotate(360deg); } }
-.acceptance__rows li, .acceptance[data-state] { transition: color 0.2s ease, border-color 0.2s ease; }
-.acceptance__debug { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
-.acceptance__debughead {
-  background: none; border: none; color: var(--muted); cursor: pointer;
-  font-size: 12px; padding: 2px 0; display: flex; align-items: center; gap: 6px; width: 100%;
-}
-.acceptance__caret { width: 10px; }
-.acceptance__ts { margin-left: auto; font-variant-numeric: tabular-nums; }
-.acceptance__debugbody { margin-top: 8px; }
-.acceptance__debugbtns { display: flex; gap: 8px; margin-bottom: 8px; }
-.acceptance__cases { width: 100%; border-collapse: collapse; font-size: 12px; }
-.acceptance__cases th { text-align: left; color: var(--muted); font-weight: 600; padding: 2px 6px; }
-.acceptance__cases td { padding: 2px 6px; vertical-align: top; }
-.acceptance__cases .row__mark { width: 14px; }
-.acceptance__actual { font-variant-numeric: tabular-nums; }
-.acceptance__raw { margin-top: 8px; font-size: 12px; color: var(--muted); }
-.acceptance__raw pre { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; overflow: auto; max-height: 180px; }
-`;

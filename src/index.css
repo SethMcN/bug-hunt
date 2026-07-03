@@ -65,9 +65,50 @@ body {
 .sidebar__num { color: var(--muted); font-variant-numeric: tabular-nums; }
 .sidebar__title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; }
+.sidebar__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px 12px;
+  font-size: 13px;
+}
+.sidebar__progress b { font-variant-numeric: tabular-nums; }
+.progressbar {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--panel2);
+  overflow: hidden;
+}
+.progressbar i {
+  display: block;
+  height: 100%;
+  background: var(--pass);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.devtools { margin-top: 8px; border-top: 1px dashed var(--border); padding: 10px 0 0; }
+.devtools__msg { display: block; padding: 6px 10px 0; font-size: 12px; color: var(--muted); }
+
+/* Status dots carry a glyph so pass/fail is readable without color vision. */
+.dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex: 0 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #0b0e13;
+  line-height: 1;
+}
 .dot--pass { background: var(--pass); }
+.dot--pass::after { content: "✓"; }
 .dot--fail { background: var(--fail); }
+.dot--fail::after { content: "✗"; }
 .dot--unknown { background: #3a4452; }
 
 /* Content ---------------------------------------------------------------- */
@@ -148,6 +189,13 @@ input, textarea, select {
 }
 input:focus, textarea:focus, select:focus { outline: 1px solid var(--accent); }
 
+/* Keyboard navigation: every interactive element gets a visible focus ring. */
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .btn {
   background: var(--accent);
   color: #06101f;
@@ -196,6 +244,71 @@ input:focus, textarea:focus, select:focus { outline: 1px solid var(--accent); }
 .home-card__top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .home-card__num { color: var(--muted); font-variant-numeric: tabular-nums; }
 .home-card__sym { font-size: 12px; color: var(--muted); }
-.summary { display: flex; gap: 16px; margin-bottom: 18px; }
+.home-card__ts { margin-top: 6px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.summary { display: flex; gap: 16px; margin-bottom: 18px; align-items: center; }
 .summary .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; }
 .summary .stat b { font-size: 22px; }
+.summary__reset { margin-left: auto; }
+
+/* Prev/next challenge navigation ------------------------------------------ */
+.challenge-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.challenge-nav a { color: var(--muted); text-decoration: none; }
+.challenge-nav a:hover { color: var(--accent); }
+
+/* Acceptance panel: running state & debug drawer --------------------------- */
+.acceptance[data-state="running"] { border-left-color: var(--muted); }
+.badge--running { background: rgba(139,148,158,0.15); color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.acceptance__spinner {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: acceptance-spin 0.6s linear infinite; vertical-align: middle;
+}
+@keyframes acceptance-spin { to { transform: rotate(360deg); } }
+.acceptance__rows li, .acceptance[data-state] { transition: color 0.2s ease, border-color 0.2s ease; }
+.acceptance__debug { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
+.acceptance__debughead {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 12px; padding: 2px 0; display: flex; align-items: center; gap: 6px; width: 100%;
+}
+.acceptance__caret { width: 10px; }
+.acceptance__ts { margin-left: auto; font-variant-numeric: tabular-nums; }
+.acceptance__debugbody { margin-top: 8px; }
+.acceptance__debugbtns { display: flex; gap: 8px; margin-bottom: 8px; }
+.acceptance__cases { width: 100%; border-collapse: collapse; font-size: 12px; }
+.acceptance__cases th { text-align: left; color: var(--muted); font-weight: 600; padding: 2px 6px; }
+.acceptance__cases td { padding: 2px 6px; vertical-align: top; }
+.acceptance__cases .row__mark { width: 14px; }
+.acceptance__actual { font-variant-numeric: tabular-nums; }
+.acceptance__history {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 10px; font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.acceptance__history .row__mark { width: auto; margin-right: 2px; }
+.acceptance__reqlog { margin-top: 10px; font-size: 12px; }
+.acceptance__reqlog > .muted { margin-bottom: 4px; }
+.acceptance__reqpath { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acceptance__raw { margin-top: 8px; font-size: 12px; color: var(--muted); }
+.acceptance__raw pre { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; overflow: auto; max-height: 180px; }
+
+/* Small screens ------------------------------------------------------------ */
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    flex: none;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .content { padding: 16px; }
+  .challenge-nav { flex-wrap: wrap; }
+}

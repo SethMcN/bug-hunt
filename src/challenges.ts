@@ -1,8 +1,11 @@
-// Single source of truth for the 19 challenges: id, number, page title, group,
+// Single source of truth for the challenges: id, number, page title, group,
 // and the symptom-only brief (expected vs observed) shown on each page. The
 // brief MUST NOT name the cause, fix, file, or line.
 
-export type Group = "Data entry" | "Performance";
+export type Group = "Data entry" | "Performance" | "Async & state";
+
+// Sidebar/Home group order.
+export const GROUPS: Group[] = ["Data entry", "Performance", "Async & state"];
 
 export interface Challenge {
   id: string; // route segment, e.g. "c01"
@@ -203,6 +206,106 @@ export const CHALLENGES: Challenge[] = [
       "Search-as-you-type should wait for a pause in typing before calling the API.",
     observed:
       "Every single keystroke fires its own API request.",
+  },
+  {
+    id: "c20",
+    num: 20,
+    title: "Order Date Formatter",
+    group: "Data entry",
+    expected:
+      "Dates from the API should display as exactly the calendar date they represent.",
+    observed:
+      "Some orders display a date that doesn't match the record — occasionally even the wrong year.",
+  },
+  {
+    id: "c21",
+    num: 21,
+    title: "Top Customers Ranking",
+    group: "Data entry",
+    expected:
+      "The leaderboard should rank customers by revenue, highest first.",
+    observed:
+      "The order is scrambled — a $900 customer outranks a $12,000 one.",
+  },
+  {
+    id: "c22",
+    num: 22,
+    title: "Customers Pagination",
+    group: "Data entry",
+    expected:
+      "Every page of results shows its own slice of rows; the last page shows the remainder.",
+    observed:
+      "Page 1 looks fine, but page 2 onward comes up empty even though there are more rows.",
+  },
+  {
+    id: "c23",
+    num: 23,
+    title: "Amount Field Parser",
+    group: "Data entry",
+    expected:
+      "Typed amounts like \"1,234.56\" or \"$12\" should be stored as exactly the value entered.",
+    observed:
+      "Amounts with thousands separators get saved as a tiny fraction of what was typed.",
+  },
+  {
+    id: "c24",
+    num: 24,
+    title: "Search Results Race",
+    group: "Async & state",
+    expected:
+      "Search results always correspond to the latest thing you typed.",
+    observed:
+      "Results sometimes flick back to an earlier, shorter query after you finish typing.",
+  },
+  {
+    id: "c25",
+    num: 25,
+    title: "Save & Refresh",
+    group: "Async & state",
+    expected:
+      "After adding a note, the refreshed list includes the note that was just saved.",
+    observed:
+      "The new note only shows up after a second, manual refresh.",
+  },
+  {
+    id: "c26",
+    num: 26,
+    title: "Sorted Product View",
+    group: "Async & state",
+    expected:
+      "Opening the sorted preview leaves the original feed order untouched.",
+    observed:
+      "Opening the sorted preview silently reorders the original feed list too.",
+  },
+  {
+    id: "c27",
+    num: 27,
+    title: "Saved Settings Loader",
+    group: "Async & state",
+    expected:
+      "Corrupt or legacy saved settings fall back to the defaults — loading never fails.",
+    observed:
+      "A corrupt stored value crashes the settings loader instead of falling back.",
+  },
+  {
+    id: "c28",
+    num: 28,
+    title: "Order Status Filter",
+    group: "Performance",
+    expected:
+      "Filtering orders by status downloads one page of rows (at most the requested limit).",
+    observed:
+      "The filter downloads every matching row — hundreds of rows per request.",
+  },
+  {
+    id: "c29",
+    num: 29,
+    title: "Live Price Ticker",
+    group: "Async & state",
+    expected:
+      "Removing the ticker widget stops its background polling.",
+    observed:
+      "Polling keeps running after the ticker is gone, piling up the longer the page is open.",
   },
 ];
 

@@ -36,3 +36,11 @@ export function Field({
     </label>
   );
 }
+
+// Pass/fail indicator for a challenge. Carries a glyph and a label so the
+// status is readable without color vision and by screen readers.
+export function StatusDot({ solved }: { solved: boolean | undefined }) {
+  const label = solved === undefined ? "not checked yet" : solved ? "solved" : "unsolved";
+  const cls = solved === undefined ? "dot--unknown" : solved ? "dot--pass" : "dot--fail";
+  return <span className={`dot ${cls}`} role="img" aria-label={label} title={label} />;
+}

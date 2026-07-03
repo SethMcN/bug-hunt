@@ -20,6 +20,16 @@ import { C16LookupCache } from "./pages/C16LookupCache.tsx";
 import { C17RevenueReport } from "./pages/C17RevenueReport.tsx";
 import { C18DashboardSummary } from "./pages/C18DashboardSummary.tsx";
 import { C19CustomerSearch } from "./pages/C19CustomerSearch.tsx";
+import { C20DateFormatter } from "./pages/C20DateFormatter.tsx";
+import { C21TopCustomers } from "./pages/C21TopCustomers.tsx";
+import { C22Pagination } from "./pages/C22Pagination.tsx";
+import { C23AmountParser } from "./pages/C23AmountParser.tsx";
+import { C24SearchRace } from "./pages/C24SearchRace.tsx";
+import { C25SaveRefresh } from "./pages/C25SaveRefresh.tsx";
+import { C26SortedView } from "./pages/C26SortedView.tsx";
+import { C27SettingsLoader } from "./pages/C27SettingsLoader.tsx";
+import { C28StatusFilter } from "./pages/C28StatusFilter.tsx";
+import { C29PriceTicker } from "./pages/C29PriceTicker.tsx";
 
 export default function App() {
   return (
@@ -45,6 +55,16 @@ export default function App() {
         <Route path="/c17" element={<C17RevenueReport />} />
         <Route path="/c18" element={<C18DashboardSummary />} />
         <Route path="/c19" element={<C19CustomerSearch />} />
+        <Route path="/c20" element={<C20DateFormatter />} />
+        <Route path="/c21" element={<C21TopCustomers />} />
+        <Route path="/c22" element={<C22Pagination />} />
+        <Route path="/c23" element={<C23AmountParser />} />
+        <Route path="/c24" element={<C24SearchRace />} />
+        <Route path="/c25" element={<C25SaveRefresh />} />
+        <Route path="/c26" element={<C26SortedView />} />
+        <Route path="/c27" element={<C27SettingsLoader />} />
+        <Route path="/c28" element={<C28StatusFilter />} />
+        <Route path="/c29" element={<C29PriceTicker />} />
       </Routes>
     </Layout>
   );

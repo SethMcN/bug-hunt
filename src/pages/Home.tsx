@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
-import { CHALLENGES, type Group } from "../challenges.ts";
-import { useAcceptanceState } from "../shared/acceptanceStore.ts";
+import { CHALLENGES, GROUPS } from "../challenges.ts";
+import { resetProgress, useAcceptanceState } from "../shared/acceptanceStore.ts";
+import { StatusDot } from "../shared/ui.tsx";
 
-const GROUPS: Group[] = ["Data entry", "Performance"];
+function since(at: number): string {
+  if (!at) return "";
+  return new Date(at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 export function Home() {
   const acceptance = useAcceptanceState();
   const total = CHALLENGES.length;
-  const solved = CHALLENGES.filter((c) => acceptance[c.id] === true).length;
+  const solved = CHALLENGES.filter((c) => acceptance[c.id]?.solved).length;
 
   return (
     <div>
@@ -26,6 +30,16 @@ export function Home() {
           <div className="muted">Remaining</div>
           <b>{total - solved}</b>
         </div>
+        <button
+          className="btn btn--ghost btn--sm summary__reset"
+          onClick={() => {
+            if (window.confirm("Clear all recorded pass/fail badges and start fresh?")) {
+              resetProgress();
+            }
+          }}
+        >
+          Reset progress
+        </button>
       </div>
 
       <p className="muted" style={{ maxWidth: 720 }}>
@@ -43,11 +57,7 @@ export function Home() {
               return (
                 <Link key={c.id} to={`/${c.id}`} className="home-card">
                   <div className="home-card__top">
-                    <span
-                      className={`dot ${
-                        s === undefined ? "dot--unknown" : s ? "dot--pass" : "dot--fail"
-                      }`}
-                    />
+                    <StatusDot solved={s?.solved} />
                     <span className="home-card__num">
                       #{String(c.num).padStart(2, "0")}
                     </span>
@@ -55,7 +65,7 @@ export function Home() {
                     <span style={{ marginLeft: "auto" }}>
                       {s === undefined ? (
                         <span className="pill">not visited</span>
-                      ) : s ? (
+                      ) : s.solved ? (
                         <span className="badge badge--pass">PASS</span>
                       ) : (
                         <span className="badge badge--fail">FAIL</span>
@@ -63,6 +73,11 @@ export function Home() {
                     </span>
                   </div>
                   <div className="home-card__sym">{c.observed}</div>
+                  {s !== undefined && s.at > 0 && (
+                    <div className="home-card__ts">
+                      {s.solved ? "passing" : "failing"} since {since(s.at)}
+                    </div>
+                  )}
                 </Link>
               );
             })}
