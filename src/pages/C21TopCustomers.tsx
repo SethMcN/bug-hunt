@@ -13,7 +13,7 @@ export interface CsvCustomer {
 
 // Rank customers by revenue, highest first.
 export function rankByRevenue(rows: CsvCustomer[]): CsvCustomer[] {
-  return [...rows].sort((a, b) => (a.revenue > b.revenue ? -1 : 1));
+  return [...rows].sort((a, b) => Number(b.revenue) - Number(a.revenue));
 }
 
 function runChecks(): CheckRow[] {

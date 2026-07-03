@@ -11,7 +11,7 @@ export async function saveAndRefresh(
   save: () => Promise<void>,
   refresh: () => Promise<void>
 ): Promise<void> {
-  save();
+  await save();
   await refresh();
 }
 

@@ -13,7 +13,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 // e.g. "Mar 7, 2026".
 export function formatOrderDate(iso: string): string {
   const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
-  const date = new Date(y, m, d);
+  const date = new Date(y, m - 1, d);
   return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
 

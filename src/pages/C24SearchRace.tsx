@@ -14,8 +14,12 @@ export function createResultLoader<T>(
   fetchImpl: (q: string) => Promise<T>,
   onResults: (q: string, results: T) => void
 ): (q: string) => void {
+  let latest = 0;
   return (q: string) => {
-    void fetchImpl(q).then((results) => onResults(q, results));
+    const mine = ++latest;
+    void fetchImpl(q).then((results) => {
+      if (mine === latest) onResults(q, results);
+    });
   };
 }
 

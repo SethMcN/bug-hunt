@@ -11,7 +11,7 @@ const ch = challengeById("c26")!;
 // Return the products ordered by ascending price for the preview, leaving the
 // incoming feed order untouched.
 export function sortByPrice(products: Product[]): Product[] {
-  return products.sort((a, b) => a.price_cents - b.price_cents);
+  return [...products].sort((a, b) => a.price_cents - b.price_cents);
 }
 
 function runChecks(): CheckRow[] {

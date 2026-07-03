@@ -17,10 +17,11 @@ export function LivePriceTicker({ work = tickWork }: { work?: ReturnType<typeof 
   const [price, setPrice] = useState(10000);
 
   useEffect(() => {
-    setInterval(() => {
+    const t = setInterval(() => {
       work.bump();
       setPrice((p) => Math.max(100, p + Math.round((Math.random() - 0.5) * 30)));
     }, 100);
+    return () => clearInterval(t);
   }, [work]);
 
   return (

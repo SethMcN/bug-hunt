@@ -8,8 +8,9 @@ export const filterRouter = Router();
 // table.
 filterRouter.get("/orders", (req, res) => {
   const status = String(req.query.status ?? "paid");
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
   const rows = db
-    .prepare("SELECT * FROM orders WHERE status = ? ORDER BY id DESC")
-    .all(status);
+    .prepare("SELECT * FROM orders WHERE status = ? ORDER BY id DESC LIMIT ?")
+    .all(status, limit);
   res.json(rows);
 });

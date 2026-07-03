@@ -9,7 +9,7 @@ const ch = challengeById("c23")!;
 // Parse a typed money amount ("$12", "12.50", "1,234.56") into integer cents.
 // Returns null when the input isn't a recognizable amount.
 export function parseAmount(input: string): number | null {
-  const cleaned = input.trim().replace(/^\$/, "");
+  const cleaned = input.trim().replace(/[$,]/g, "");
   const n = parseFloat(cleaned);
   if (Number.isNaN(n)) return null;
   return Math.round(n * 100);

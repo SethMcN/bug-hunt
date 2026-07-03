@@ -10,7 +10,7 @@ const PAGE_SIZE = 25;
 
 // Return the rows visible on the given zero-based page.
 export function pageSlice<T>(rows: T[], page: number, size: number): T[] {
-  return rows.slice(page * size, size);
+  return rows.slice(page * size, (page + 1) * size);
 }
 
 function runChecks(): CheckRow[] {

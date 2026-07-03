@@ -21,8 +21,12 @@ export const DEFAULT_SETTINGS: DisplaySettings = {
 // corrupt, legacy format) falls back to the defaults — loading never fails.
 export function loadSettings(raw: string | null): DisplaySettings {
   if (raw === null) return DEFAULT_SETTINGS;
-  const parsed = JSON.parse(raw) as Partial<DisplaySettings>;
-  return { ...DEFAULT_SETTINGS, ...parsed };
+  try {
+    const parsed = JSON.parse(raw) as Partial<DisplaySettings>;
+    return { ...DEFAULT_SETTINGS, ...parsed };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
 }
 
 function tryLoad(raw: string | null): { ok: true; v: DisplaySettings } | { ok: false; err: string } {
